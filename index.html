@@ -18,9 +18,7 @@
         h1, h2, h3, .royal-font { font-family: 'Cinzel', serif; }
 
         #start-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 5000; display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 5000; display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
         .start-title { font-family: 'Cinzel', serif; font-size: 70px; font-weight: 900; color: #ed1c24; text-shadow: 0 0 20px rgba(237,28,36,0.8), 3px 3px 0 #f1c40f; margin-bottom: 10px; letter-spacing: 4px; text-align: center; }
         .start-subtitle { font-family: 'Cinzel', serif; font-size: 22px; color: var(--gold); letter-spacing: 8px; margin-bottom: 50px; text-transform: uppercase; font-weight: bold; text-align: center; }
@@ -36,10 +34,13 @@
             display: grid; grid-template-columns: 110px repeat(9, 65px) 110px; grid-template-rows: 110px repeat(9, 65px) 110px; 
             background: #000; border: 4px solid #000; position: relative; width: 100%; height: 100%;
         }
-        .square { background: #fafaf8; color: #000; position: relative; cursor: pointer; border: 1px solid #000; display: flex; flex-direction: column; align-items: center; overflow: hidden; }
 
-        .color-bar { width: 100%; height: 25px; border-bottom: 2px solid #000; flex-shrink: 0; }
-        .house-row { width: 100%; height: 20px; display: flex; justify-content: center; align-items: center; font-size: 14px; background: rgba(0,0,0,0.05); }
+        /* THÊM HIỆU ỨNG HOVER ĐỂ BIẾT Ô NÀO BẤM ĐƯỢC */
+        .square { background: #fafaf8; color: #000; position: relative; cursor: pointer; border: 1px solid #000; display: flex; flex-direction: column; align-items: center; overflow: hidden; transition: box-shadow 0.2s; }
+        .square:hover { box-shadow: inset 0 0 20px rgba(241, 196, 15, 0.8); z-index: 10; }
+
+        .color-bar { width: 100%; height: 25px; border-bottom: 2px solid #000; flex-shrink: 0; pointer-events: none; }
+        .house-row { width: 100%; height: 20px; display: flex; justify-content: center; align-items: center; font-size: 14px; background: rgba(0,0,0,0.05); pointer-events: none; }
 
         .txt-box { flex-grow: 1; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; pointer-events: none; position: relative; }
         .name-label { font-family: 'Quicksand', sans-serif; font-size: 9px; font-weight: 900; text-transform: uppercase; line-height: 1.1; width: 90%; }
@@ -57,7 +58,7 @@
 
         #center-panel { grid-area: 2 / 2 / 11 / 11; background: var(--bg-board); position: relative; border: 2px solid #000; }
         .logo-wrapper { position: absolute; width: 140%; height: 90px; background: linear-gradient(90deg, #b31217, #ed1c24, #b31217); display: flex; align-items: center; justify-content: center; top: 45%; left: -20%; transform: rotate(-45deg); border: 5px solid #000; box-shadow: 0 0 30px rgba(0,0,0,0.8); }
-        .center-logo { font-family: 'Cinzel', serif; font-size: 40px; font-weight: 900; color: #fff; text-shadow: 3px 3px 0 #000; letter-spacing: 2px; }
+        .center-logo { font-family: 'Cinzel', serif; font-size: 40px; font-weight: 900; color: #fff; text-shadow: 3px 3px 0 #000; letter-spacing: 2px; pointer-events: none; }
 
         .piece { width: 34px; height: 34px; position: absolute; z-index: 1000; transition: all 0.4s ease-out; display: flex; align-items: center; justify-content: center; font-size: 24px; transform: translate(-50%, -50%); border-radius: 50%; box-shadow: 0 4px 8px rgba(0,0,0,0.6); pointer-events: none; }
 
@@ -67,7 +68,7 @@
         .btn-action { font-family: 'Quicksand', sans-serif; padding: 15px; cursor: pointer; border: none; border-radius: 6px; font-weight: 900; background: linear-gradient(180deg, #f1c40f, #d4ac0d); box-shadow: 0 4px #9a7d0a; color: #000; font-size: 16px; text-transform: uppercase; }
         .btn-action:disabled { background: #718093; box-shadow: none; cursor: not-allowed; }
 
-        #modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: none; justify-content: center; align-items: center; z-index: 2000; }
+        #modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 2000; }
         .modal { background: #fff; padding: 25px; width: 420px; border: 4px solid #000; text-align: center; color: #000; border-radius: 8px; }
         
         .title-deed { border: 2px solid #000; padding: 15px; background: #fff; margin-bottom: 15px; text-align: left; }
@@ -81,7 +82,7 @@
 
 <div id="start-screen">
     <div class="start-title">SỬ VIỆT KỲ DU</div>
-    <div class="start-subtitle">Hào Kiệt Tranh Tài</div>
+    <div class="start-subtitle">Bản Đồ Di Sản Cổ Đại</div>
     <button class="menu-btn" onclick="startGame()">Bắt Đầu</button>
     <button class="menu-btn quit-btn" onclick="quitGame()">Thoát</button>
 </div>
@@ -122,9 +123,7 @@
         document.getElementById('game-wrapper').style.display = 'flex';
         autoScale(); updatePos(); addLog("Trận đấu bắt đầu! Kẻ mạnh nhất sẽ làm chủ di sản.");
     }
-    function quitGame() {
-        document.getElementById('start-screen').innerHTML = '<div class="start-title" style="color:#fff; text-shadow:none;">HẸN GẶP LẠI!</div><div class="start-subtitle">Lịch sử vẫn chờ người khám phá.</div>';
-    }
+    function quitGame() { document.getElementById('start-screen').innerHTML = '<div class="start-title" style="color:#fff; text-shadow:none;">HẸN GẶP LẠI!</div><div class="start-subtitle">Lịch sử vẫn chờ người khám phá.</div>'; }
     function autoScale() {
         const bc = document.getElementById('board-container'), wr = document.getElementById('game-wrapper');
         if(wr.style.display === 'none') return;
@@ -136,7 +135,6 @@
 
     const buildIcons = ["", "🛖", "🏠", "🏛️", "🏰", "🏯"];
     
-    // CÂU HỎI HARDCORE VĂN LANG, PHÙ NAM, CHĂM PA & KHÁC
     const geoData = {
         1: { name: "Bạch Hạc", type: "brown", price: 120, up: 100, rent: [10, 50, 150, 450, 600, 900], q: "Kỹ thuật luyện kim thời Văn Lang đạt đỉnh cao với di vật tiêu biểu nào?", a: ["Trống đồng Đông Sơn", "Thạp Đào Thịnh", "Rìu lưỡi xéo"], c: "Trống đồng Đông Sơn" },
         3: { name: "Mê Linh", type: "brown", price: 150, up: 100, rent: [15, 70, 200, 550, 750, 1100], q: "Theo sử cũ, Hai Bà Trưng xuất thân từ dòng dõi nào?", a: ["Lạc tướng Mê Linh", "Hùng Vương", "Thục Phán"], c: "Lạc tướng Mê Linh" },
@@ -201,6 +199,9 @@
         const sq = document.createElement('div');
         sq.className = `square ${coords[i].s}`; sq.style.gridRow = coords[i].r; sq.style.gridColumn = coords[i].c; sq.id = `sq-${i}`;
         
+        // CLICK VÀO Ô ĐỂ XEM TRƯỚC SỔ ĐỎ
+        sq.onclick = () => viewPropertyInfo(i);
+        
         let bar = t.price > 0 ? `<div class="color-bar" style="background:var(--color-${t.type})"></div>` : "";
         let house = t.price > 0 ? `<div id="h-${i}" class="house-row"></div>` : "";
         sq.innerHTML = `${bar}${house}<div class="txt-box"><span class="name-label">${t.name}</span><span class="price-label">${t.price?t.price+'💰':''}</span></div>`;
@@ -241,13 +242,13 @@
     function handleTile() {
         isMoving = false; const p = players[turn], t = boardData[p.pos];
         if(t.type==='start'){ p.money+=200; addLog(`${p.name} qua cửa ải nhận 200💰.`); finish(); }
-        else if(t.type==='wasteland'){ showModal("<h2 class='royal-font'>ĐẤT HOANG</h2>", `<p>Bỏ 50💰 thuê thợ khai quật di chỉ không?</p><button class="ans-btn" onclick="closeModal(); doDig()">KHAI QUẬT</button><button class="ans-btn" style="background:#718093;" onclick="closeModal(); finish()">BỎ QUA</button>`); }
+        else if(t.type==='wasteland'){ showModal("<h2 class='royal-font'>ĐẤT HOANG</h2>", `<p>Bỏ 50💰 thuê thợ khai quật di chỉ khảo cổ không?</p><button class="ans-btn" onclick="closeModal(); doDig()">KHAI QUẬT</button><button class="ans-btn" style="background:#718093;" onclick="closeModal(); finish()">BỎ QUA</button>`); }
         else if(t.type==='gotojail'){ p.pos=10; p.jail = true; updatePos(); addLog(`${p.name} BỊ GIẢI VÔ TÙ!`); finish(); }
         else if(t.type==='jail' || t.type==='rest'){ addLog(`${p.name} nghỉ ngơi tại ${t.name}.`); finish(); }
         else if(t.price > 0) {
             if(!t.owner) askQuiz(t);
             else if(t.owner === p.id) { if(t.buildings < 5) askUpgrade(t); else finish(); }
-            else { let tax=t.rent[t.buildings]; p.money-=tax; players[t.owner-1].money+=tax; addLog(`${p.name} nộp ${tax}💰 thuế môn bài.`); finish(); }
+            else { let tax=t.rent[t.buildings]; p.money-=tax; players[t.owner-1].money+=tax; addLog(`${p.name} nộp ${tax}💰 phí.`); finish(); }
         } else finish();
     }
 
@@ -307,6 +308,13 @@
             p.el.style.left = cx + ox + "px"; p.el.style.top = cy + oy + "px";
             document.getElementById(`m${p.id}`).innerText = p.money;
         });
+    }
+
+    // TÍNH NĂNG XEM TRƯỚC SỔ ĐỎ AN TOÀN (CHỈ XEM ĐƯỢC KHI KHÔNG CÓ POPUP)
+    function viewPropertyInfo(i){ 
+        if (document.getElementById('modal-overlay').style.display === 'flex') return; // Chống kẹt game
+        const t=boardData[i]; 
+        if(t.price>0) showModal("<h2 class='royal-font'>THÔNG TIN SỔ ĐỎ</h2>", generateDeed(t) + `<button class="ans-btn" onclick="closeModal()">ĐÓNG</button>`); 
     }
 
     function showModal(t,c){ document.getElementById('modal-content').innerHTML=`${t}${c}`; document.getElementById('modal-overlay').style.display='flex'; }
