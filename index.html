@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sử Việt Kỳ Du</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Quicksand:wght@500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-brown: #6f381f; --color-lblue: #8fd4ef; --color-pink: #cc2a77;
+            --color-orange: #d17a15; --color-red: #cc1515; --color-yellow: #eac308;
+            --color-green: #188d49; --color-blue: #005f99;
+            --bg-board: #adcb9e; --bg-ui: #1a2228; --gold: #d4ac0d;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Quicksand', sans-serif; background: #080a0c; color: #fff; overflow: hidden; height: 100vh; display: flex; justify-content: center; align-items: center; }
+        
+        h1, h2, h3, .royal-font { font-family: 'Cinzel', serif; }
+
+        #start-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 5000; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+        }
+        .start-title { font-family: 'Cinzel', serif; font-size: 70px; font-weight: 900; color: #ed1c24; text-shadow: 0 0 20px rgba(237,28,36,0.8), 3px 3px 0 #f1c40f; margin-bottom: 10px; letter-spacing: 4px; text-align: center; }
+        .start-subtitle { font-family: 'Cinzel', serif; font-size: 22px; color: var(--gold); letter-spacing: 8px; margin-bottom: 50px; text-transform: uppercase; font-weight: bold; text-align: center; }
+        .menu-btn { font-family: 'Cinzel', serif; padding: 18px 50px; font-size: 24px; font-weight: 900; border: 2px solid var(--gold); border-radius: 8px; cursor: pointer; margin: 10px; width: 300px; transition: 0.3s; background: linear-gradient(180deg, #b31217, #ed1c24); color: #fff; text-transform: uppercase; }
+        .menu-btn:hover { transform: scale(1.05); box-shadow: 0 0 25px var(--gold); }
+        .quit-btn { background: #2f3640; border-color: #718093; color: #fff; }
+        .quit-btn:hover { box-shadow: 0 0 25px #718093; }
+
+        #game-wrapper { display: none; gap: 20px; padding: 10px; align-items: flex-start; transition: 0.3s; }
+        #board-container { position: relative; width: 805px; height: 805px; flex-shrink: 0; }
+        
+        #board { 
+            display: grid; grid-template-columns: 110px repeat(9, 65px) 110px; grid-template-rows: 110px repeat(9, 65px) 110px; 
+            background: #000; border: 4px solid #000; position: relative; width: 100%; height: 100%;
+        }
+        .square { background: #fafaf8; color: #000; position: relative; cursor: pointer; border: 1px solid #000; display: flex; flex-direction: column; align-items: center; overflow: hidden; }
+
+        .color-bar { width: 100%; height: 25px; border-bottom: 2px solid #000; flex-shrink: 0; }
+        .house-row { width: 100%; height: 20px; display: flex; justify-content: center; align-items: center; font-size: 14px; background: rgba(0,0,0,0.05); }
+
+        .txt-box { flex-grow: 1; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; pointer-events: none; position: relative; }
+        .name-label { font-family: 'Quicksand', sans-serif; font-size: 9px; font-weight: 900; text-transform: uppercase; line-height: 1.1; width: 90%; }
+        .price-label { font-family: 'Quicksand', sans-serif; font-size: 11px; font-weight: 900; position: absolute; bottom: 4px; width: 100%; }
+
+        .side-left .txt-box { transform: rotate(90deg); position: absolute; width: 110px; height: 65px; left: -22px; top: 0; }
+        .side-left { flex-direction: row-reverse; }
+        .side-left .color-bar { width: 25px; height: 100%; border-bottom: none; border-left: 2px solid #000; }
+        .side-top .txt-box { transform: rotate(180deg); }
+        .side-top { flex-direction: column-reverse; }
+        .side-top .color-bar { border-bottom: none; border-top: 2px solid #000; }
+        .side-right .txt-box { transform: rotate(-90deg); position: absolute; width: 110px; height: 65px; right: -22px; top: 0; }
+        .side-right { flex-direction: row; }
+        .side-right .color-bar { width: 25px; height: 100%; border-bottom: none; border-right: 2px solid #000; }
+
+        #center-panel { grid-area: 2 / 2 / 11 / 11; background: var(--bg-board); position: relative; border: 2px solid #000; }
+        .logo-wrapper { position: absolute; width: 140%; height: 90px; background: linear-gradient(90deg, #b31217, #ed1c24, #b31217); display: flex; align-items: center; justify-content: center; top: 45%; left: -20%; transform: rotate(-45deg); border: 5px solid #000; box-shadow: 0 0 30px rgba(0,0,0,0.8); }
+        .center-logo { font-family: 'Cinzel', serif; font-size: 40px; font-weight: 900; color: #fff; text-shadow: 3px 3px 0 #000; letter-spacing: 2px; }
+
+        .piece { width: 34px; height: 34px; position: absolute; z-index: 1000; transition: all 0.4s ease-out; display: flex; align-items: center; justify-content: center; font-size: 24px; transform: translate(-50%, -50%); border-radius: 50%; box-shadow: 0 4px 8px rgba(0,0,0,0.6); pointer-events: none; }
+
+        #ui-panel { width: 330px; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
+        .card { background: #2f3640; padding: 12px; border-radius: 10px; border-left: 6px solid var(--gold); }
+        #log { background: #000; height: 450px; overflow-y: auto; padding: 12px; font-size: 13px; font-weight: 700; border: 1px solid #444; color: #ccc; border-radius: 5px; line-height: 1.5; }
+        .btn-action { font-family: 'Quicksand', sans-serif; padding: 15px; cursor: pointer; border: none; border-radius: 6px; font-weight: 900; background: linear-gradient(180deg, #f1c40f, #d4ac0d); box-shadow: 0 4px #9a7d0a; color: #000; font-size: 16px; text-transform: uppercase; }
+        .btn-action:disabled { background: #718093; box-shadow: none; cursor: not-allowed; }
+
+        #modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: none; justify-content: center; align-items: center; z-index: 2000; }
+        .modal { background: #fff; padding: 25px; width: 420px; border: 4px solid #000; text-align: center; color: #000; border-radius: 8px; }
+        
+        .title-deed { border: 2px solid #000; padding: 15px; background: #fff; margin-bottom: 15px; text-align: left; }
+        .deed-header { font-family: 'Cinzel', serif; border: 2px solid #000; padding: 12px; font-weight: 900; font-size: 24px; text-transform: uppercase; color: #fff; margin-bottom: 15px; text-align: center; }
+        .rent-row { display: flex; justify-content: space-between; font-size: 16px; font-weight: 900; margin-bottom: 8px; padding: 4px 10px; border-bottom: 1px solid #eee; }
+        .ans-btn { font-family: 'Quicksand', sans-serif; width: 100%; padding: 14px; margin: 6px 0; border: none; background: #2c3e50; color: #fff; font-weight: bold; font-size: 16px; cursor: pointer; border-radius: 6px; }
+        .ans-btn:hover { background: #8e44ad; }
+    </style>
+</head>
+<body onresize="autoScale()">
+
+<div id="start-screen">
+    <div class="start-title">SỬ VIỆT KỲ DU</div>
+    <div class="start-subtitle">Hào Kiệt Tranh Tài</div>
+    <button class="menu-btn" onclick="startGame()">Bắt Đầu</button>
+    <button class="menu-btn quit-btn" onclick="quitGame()">Thoát</button>
+</div>
+
+<div id="game-wrapper">
+    <div id="board-container">
+        <div id="board">
+            <div id="center-panel">
+                <div class="logo-wrapper"><div class="center-logo">SỬ VIỆT KỲ DU</div></div>
+                <div style="position: absolute; bottom: 25px; right: 25px; background: rgba(255,255,255,0.4); padding: 10px; border-radius: 12px; border: 2px solid #000; z-index: 10;">
+                    <div style="display: flex; gap: 8px;"><div id="die1" style="width:45px;height:45px;background:#fff;border:3px solid #000;border-radius:8px;line-height:45px;text-align:center;font-size:26px;font-weight:900;color:#000;">?</div><div id="die2" style="width:45px;height:45px;background:#fff;border:3px solid #000;border-radius:8px;line-height:45px;text-align:center;font-size:26px;font-weight:900;color:#000;">?</div></div>
+                </div>
+            </div>
+            <div id="p1" class="piece" style="background: radial-gradient(circle, #fff7ae, #f1c40f);">🐲</div>
+            <div id="p2" class="piece" style="background: radial-gradient(circle, #fff, #bdc3c7);">🧚</div>
+            <div id="p3" class="piece" style="background: radial-gradient(circle, #f7d3a2, #e67e22);">🦅</div>
+            <div id="p4" class="piece" style="background: radial-gradient(circle, #5fe2a6, #2ecc71);">🐢</div>
+        </div>
+    </div>
+
+    <div id="ui-panel">
+        <div id="turn-info" class="card royal-font" style="border-left-color: #ed1c24; text-align:center; font-size: 22px;">LƯỢT: RỒNG</div>
+        <div class="card" style="font-size:14px; font-weight:bold; display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <div style="color:#ff7675">🐲 Rồng: <b id="m1">2500</b></div><div style="color:#74b9ff">🧚 Tiên: <b id="m2">2500</b></div>
+            <div style="color:#55efc4">🦅 Lạc: <b id="m3">2500</b></div><div style="color:#ffeaa7">🐢 Quy: <b id="m4">2500</b></div>
+        </div>
+        <div id="log"></div>
+        <button id="roll-btn" class="btn-action" onclick="handleMainAction()">ĐỔ XÚC XẮC</button>
+        <button class="btn-action" onclick="toggleFullscreen()" style="background: #34495e; box-shadow: 0 4px #2c3e50; color: #fff; margin-top: 5px;">TOÀN MÀN HÌNH</button>
+    </div>
+</div>
+
+<div id="modal-overlay"><div class="modal" id="modal-content"></div></div>
+
+<script>
+    function startGame() {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('game-wrapper').style.display = 'flex';
+        autoScale(); updatePos(); addLog("Trận đấu bắt đầu! Kẻ mạnh nhất sẽ làm chủ di sản.");
+    }
+    function quitGame() {
+        document.getElementById('start-screen').innerHTML = '<div class="start-title" style="color:#fff; text-shadow:none;">HẸN GẶP LẠI!</div><div class="start-subtitle">Lịch sử vẫn chờ người khám phá.</div>';
+    }
+    function autoScale() {
+        const bc = document.getElementById('board-container'), wr = document.getElementById('game-wrapper');
+        if(wr.style.display === 'none') return;
+        const scale = Math.min((window.innerHeight - 40) / 805, (window.innerWidth - 360) / 805, 1);
+        bc.style.transform = `scale(${scale})`; bc.style.transformOrigin = 'top left';
+        wr.style.height = (805 * scale) + "px";
+    }
+    function toggleFullscreen() { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
+
+    const buildIcons = ["", "🛖", "🏠", "🏛️", "🏰", "🏯"];
+    
+    // CÂU HỎI HARDCORE VĂN LANG, PHÙ NAM, CHĂM PA & KHÁC
+    const geoData = {
+        1: { name: "Bạch Hạc", type: "brown", price: 120, up: 100, rent: [10, 50, 150, 450, 600, 900], q: "Kỹ thuật luyện kim thời Văn Lang đạt đỉnh cao với di vật tiêu biểu nào?", a: ["Trống đồng Đông Sơn", "Thạp Đào Thịnh", "Rìu lưỡi xéo"], c: "Trống đồng Đông Sơn" },
+        3: { name: "Mê Linh", type: "brown", price: 150, up: 100, rent: [15, 70, 200, 550, 750, 1100], q: "Theo sử cũ, Hai Bà Trưng xuất thân từ dòng dõi nào?", a: ["Lạc tướng Mê Linh", "Hùng Vương", "Thục Phán"], c: "Lạc tướng Mê Linh" },
+        6: { name: "Chu Diên", type: "lblue", price: 200, up: 150, rent: [20, 100, 300, 750, 950, 1300], q: "Thi Sách - chồng của Trưng Trắc là con trai của vị quan nào?", a: ["Lạc tướng Chu Diên", "Lạc tướng Mê Linh", "Triệu Đà"], c: "Lạc tướng Chu Diên" },
+        8: { name: "Phong Châu", type: "lblue", price: 220, up: 150, rent: [25, 120, 350, 850, 1050, 1400], q: "Kinh đô Phong Châu của nước Văn Lang nay nằm trên địa phận tỉnh nào?", a: ["Phú Thọ", "Vĩnh Phúc", "Yên Bái"], c: "Phú Thọ" },
+        9: { name: "Giao Chỉ", type: "lblue", price: 240, up: 150, rent: [30, 140, 400, 900, 1100, 1500], q: "Sau khi diệt Âu Lạc, Triệu Đà chia vùng đất này thành Giao Chỉ và quận nào?", a: ["Cửu Chân", "Nhật Nam", "Hợp Phố"], c: "Cửu Chân" },
+        11: { name: "Cổ Loa", type: "pink", price: 280, up: 200, rent: [35, 160, 450, 1000, 1250, 1700], q: "Thành Cổ Loa thời An Dương Vương được thiết kế theo cấu trúc gồm mấy vòng?", a: ["3 vòng", "2 vòng", "4 vòng"], c: "3 vòng" },
+        13: { name: "Trà Kiệu", type: "pink", price: 300, up: 200, rent: [40, 180, 500, 1100, 1350, 1850], q: "Tên gọi cổ Simhapura (Kinh đô Trà Kiệu) mang ý nghĩa là gì?", a: ["Thành Sư Tử", "Thành Voi", "Thành Rồng"], c: "Thành Sư Tử" },
+        14: { name: "Đồng Dương", type: "pink", price: 320, up: 200, rent: [45, 200, 550, 1200, 1450, 2000], q: "Phật viện Đồng Dương (Quảng Nam) được thành lập bởi vị vua Chăm Pa nào?", a: ["Indravarman II", "Chế Mân", "Bà Khắc Lượng"], c: "Indravarman II" },
+        16: { name: "Mỹ Sơn", type: "orange", price: 350, up: 250, rent: [50, 220, 600, 1300, 1600, 2200], q: "Thánh địa Mỹ Sơn chủ yếu được xây dựng để thờ vị thần nào trong Ấn Độ giáo?", a: ["Shiva", "Vishnu", "Brahma"], c: "Shiva" },
+        18: { name: "Vijaya", type: "orange", price: 380, up: 250, rent: [55, 240, 650, 1400, 1750, 2400], q: "Thành Vijaya (Đồ Bàn) bị quân Đại Việt hạ vào năm 1471 dưới triều vua nào?", a: ["Lê Thánh Tông", "Lê Thái Tổ", "Trần Nhân Tông"], c: "Lê Thánh Tông" },
+        19: { name: "Panduranga", type: "orange", price: 400, up: 250, rent: [60, 260, 700, 1500, 1900, 2600], q: "Tên gọi cổ của vùng đất Ninh Thuận - Bình Thuận thời Chăm Pa là gì?", a: ["Panduranga", "Kauthara", "Amaravati"], c: "Panduranga" },
+        21: { name: "Kauthara", type: "red", price: 420, up: 300, rent: [65, 280, 750, 1600, 2100, 2800], q: "Tháp Bà Ponagar tại Kauthara (Nha Trang) được xây để thờ vị nữ thần nào?", a: ["Thiên Y A Na", "Nữ thần Mặt Trời", "Uma"], c: "Thiên Y A Na" },
+        23: { name: "Nền Chùa", type: "red", price: 450, up: 300, rent: [70, 300, 850, 1700, 2250, 3000], q: "Di chỉ Nền Chùa tại Kiên Giang là minh chứng cho nền văn hóa khảo cổ nào?", a: ["Óc Eo", "Sa Huỳnh", "Đồng Nai"], c: "Óc Eo" },
+        24: { name: "Ba Thê", type: "red", price: 480, up: 300, rent: [75, 330, 900, 1800, 2400, 3200], q: "Nhà khảo cổ học nào đã phát hiện ra văn hóa Óc Eo tại núi Ba Thê năm 1944?", a: ["Louis Malleret", "Henri Parmentier", "O. Janse"], c: "Louis Malleret" },
+        26: { name: "Angkor Borei", type: "yellow", price: 500, up: 350, rent: [80, 360, 1000, 2000, 2600, 3500], q: "Angkor Borei - một trong các trung tâm của Phù Nam cổ, hiện nay nằm ở quốc gia nào?", a: ["Campuchia", "Việt Nam", "Thái Lan"], c: "Campuchia" },
+        27: { name: "Tháp Mười", type: "yellow", price: 520, up: 350, rent: [85, 390, 1100, 2100, 2800, 3800], q: "Khu di tích Gò Tháp nổi bật với kiến trúc khảo cổ gì của người Phù Nam?", a: ["Mộ táng và đền tháp", "Nhà sàn gỗ", "Thành lũy phòng thủ"], c: "Mộ táng và đền tháp" },
+        29: { name: "Cạnh Đền", type: "yellow", price: 550, up: 350, rent: [90, 420, 1200, 2300, 3000, 4200], q: "Địa hình ngập nước khiến cư dân Phù Nam chủ yếu cư trú bằng loại hình nhà nào?", a: ["Nhà sàn trên cọc gỗ", "Nhà xây bằng gạch", "Nhà hang động"], c: "Nhà sàn trên cọc gỗ" },
+        31: { name: "Óc Eo", type: "green", price: 600, up: 400, rent: [100, 450, 1300, 2500, 3300, 4500], q: "Đồng tiền vàng La Mã tìm thấy tại cảng Óc Eo mang hình ảnh của vị hoàng đế nào?", a: ["Antoninus Pius", "Julius Caesar", "Augustus"], c: "Antoninus Pius" },
+        32: { name: "Lvyapura", type: "green", price: 620, up: 400, rent: [110, 480, 1400, 2700, 3600, 4800], q: "Lvyapura - vùng đất tương ứng với Long An cổ, có nghĩa là gì trong tiếng Sanskrit?", a: ["Thành phố Cây Cùi Dừa", "Thành phố Hoa Sen", "Thành phố Vàng"], c: "Thành phố Cây Cùi Dừa" },
+        34: { name: "Thăng Long", type: "green", price: 650, up: 400, rent: [120, 520, 1500, 2900, 3900, 5200], q: "Chiếu dời đô (Thiên đô chiếu) của vua Lý Công Uẩn được ban hành vào năm nào?", a: ["1010", "1009", "1011"], c: "1010" },
+        37: { name: "Hoa Lư", type: "blue", price: 800, up: 500, rent: [150, 700, 1800, 3500, 4500, 6000], q: "Kinh đô Hoa Lư của Đại Cồ Việt tồn tại trong khoảng thời gian bao nhiêu năm?", a: ["42 năm", "35 năm", "50 năm"], c: "42 năm" },
+        39: { name: "Hội An", type: "blue", price: 1000, up: 500, rent: [200, 850, 2200, 4200, 5500, 8000], q: "Thương cảng Hội An phát triển rực rỡ nhất dưới thời các chúa Nguyễn vào thế kỷ nào?", a: ["XVI - XVII", "XIV - XV", "XVIII - XIX"], c: "XVI - XVII" }
+    };
+
+    let squares = [], boardData = [], turn = 0, rolledDouble = false, isMoving = false;
+    let players = [
+        { id: 1, pos: 0, money: 2500, name: "Rồng", icon: "🐲", color: "#ed1c24", el: document.getElementById('p1'), jailCards: 0 },
+        { id: 2, pos: 0, money: 2500, name: "Tiên", icon: "🧚", color: "#0072bb", el: document.getElementById('p2'), jailCards: 0 },
+        { id: 3, pos: 0, money: 2500, name: "Lạc", icon: "🦅", color: "#1fb25a", el: document.getElementById('p3'), jailCards: 0 },
+        { id: 4, pos: 0, money: 2500, name: "Quy", icon: "🐢", color: "#f39c12", el: document.getElementById('p4'), jailCards: 0 }
+    ];
+    let auctionData = { active: false, prop: null, price: 10, bidder: null, turnIdx: 0 };
+
+    function generateDeed(t) {
+        const color = getComputedStyle(document.documentElement).getPropertyValue(`--color-${t.type}`).trim();
+        return `
+            <div class="title-deed">
+                <div class="deed-header" style="background:${color}">${t.name}</div>
+                <div class="rent-row" style="border-bottom:2px solid #000; margin-bottom:10px;"><span>Thuế Đất Trống</span> <span>${t.rent[0]}💰</span></div>
+                <div class="rent-row"><span>Nhà Tranh</span> <span>${t.rent[1]}💰</span></div>
+                <div class="rent-row"><span>Nhà Ngói</span> <span>${t.rent[2]}💰</span></div>
+                <div class="rent-row"><span>Phủ Đệ</span> <span>${t.rent[3]}💰</span></div>
+                <div class="rent-row"><span>Cung Điện</span> <span>${t.rent[4]}💰</span></div>
+                <div class="rent-row" style="font-size:18px; margin-top:5px; border-top:1px solid #000; padding-top:8px; font-weight:900; color:#b31217;"><span>THÀNH TRÌ</span> <span>${t.rent[5]}💰</span></div>
+                <p style="font-size:12px; font-weight:bold; margin-top:12px; color:#555; text-align:center; border-top: 1px dashed #ccc; padding-top: 8px;">Giá Xây: ${t.up}💰 | Thế Chấp: ${t.price/2}💰</p>
+            </div>
+        `;
+    }
+
+    const boardEl = document.getElementById('board');
+    let coords = [];
+    for(let i=0; i<11; i++) coords.push({r:11, c:11-i, s:'side-bottom'});
+    for(let i=1; i<10; i++) coords.push({r:11-i, c:1, s:'side-left'});
+    for(let i=0; i<11; i++) coords.push({r:1, c:i+1, s:'side-top'});
+    for(let i=1; i<10; i++) coords.push({r:i+1, c:11, s:'side-right'});
+
+    for(let i=0; i<40; i++){
+        let t = geoData[i] ? {...geoData[i], owner:null, buildings:0} : {name: "ĐẤT HOANG", type: "wasteland", price: 0};
+        if(i===0) t={name:"XUẤT PHÁT", type:"start"}; else if(i===10) t={name:"THĂM TÙ", type:"jail"}; else if(i===20) t={name:"TRẠM NGHỈ", type:"rest"}; else if(i===30) t={name:"VÔ TÙ", type:"gotojail"};
+        
+        const sq = document.createElement('div');
+        sq.className = `square ${coords[i].s}`; sq.style.gridRow = coords[i].r; sq.style.gridColumn = coords[i].c; sq.id = `sq-${i}`;
+        
+        let bar = t.price > 0 ? `<div class="color-bar" style="background:var(--color-${t.type})"></div>` : "";
+        let house = t.price > 0 ? `<div id="h-${i}" class="house-row"></div>` : "";
+        sq.innerHTML = `${bar}${house}<div class="txt-box"><span class="name-label">${t.name}</span><span class="price-label">${t.price?t.price+'💰':''}</span></div>`;
+        boardEl.appendChild(sq); boardData.push(t); squares.push(sq);
+    }
+
+    function addLog(msg) { const l = document.getElementById('log'), d = document.createElement('div'); d.style.marginBottom = "5px"; d.innerHTML = `> ${msg}`; l.appendChild(d); l.scrollTop = l.scrollHeight; }
+
+    function handleMainAction() {
+        if(isMoving) return;
+        if(players[turn].jail) showModal("<h2 class='royal-font'>MỤC XÁ</h2>", `<p>${players[turn].icon} đang bị giam! Đổ xúc xắc đôi để thoát thân?</p><button class="ans-btn" onclick="closeModal(); processJail()">THỬ VẬN MAY (ĐỔ ĐÔI)</button><button class="ans-btn" style="background:#e67e22;" onclick="closeModal(); payJail()">NỘP PHẠT 200💰</button>`);
+        else rollDice();
+    }
+
+    function processJail() {
+        const d1=Math.floor(Math.random()*6)+1, d2=Math.floor(Math.random()*6)+1;
+        document.getElementById('die1').innerText=d1; document.getElementById('die2').innerText=d2;
+        if(d1===d2) { players[turn].jail = false; addLog(`${players[turn].name} đổ đôi, đã thoát ngục!`); movePlayer(d1+d2); }
+        else { addLog(`${players[turn].name} đổ ${d1+d2}, vẫn chưa thoát.`); finish(); }
+    }
+    function payJail() { players[turn].money -= 200; players[turn].jail = false; addLog(`${players[turn].name} nộp phạt thoát tù.`); rollDice(); }
+
+    function rollDice() {
+        isMoving = true; document.getElementById('roll-btn').disabled = true;
+        const d1=Math.floor(Math.random()*6)+1, d2=Math.floor(Math.random()*6)+1;
+        document.getElementById('die1').innerText=d1; document.getElementById('die2').innerText=d2;
+        rolledDouble = (d1===d2); movePlayer(d1+d2);
+    }
+    
+    async function movePlayer(steps) { 
+        for(let i=0; i<steps; i++){ 
+            players[turn].pos=(players[turn].pos+1)%40; updatePos(); 
+            await new Promise(r=>setTimeout(r, 180)); 
+        } 
+        handleTile(); 
+    }
+
+    function handleTile() {
+        isMoving = false; const p = players[turn], t = boardData[p.pos];
+        if(t.type==='start'){ p.money+=200; addLog(`${p.name} qua cửa ải nhận 200💰.`); finish(); }
+        else if(t.type==='wasteland'){ showModal("<h2 class='royal-font'>ĐẤT HOANG</h2>", `<p>Bỏ 50💰 thuê thợ khai quật di chỉ không?</p><button class="ans-btn" onclick="closeModal(); doDig()">KHAI QUẬT</button><button class="ans-btn" style="background:#718093;" onclick="closeModal(); finish()">BỎ QUA</button>`); }
+        else if(t.type==='gotojail'){ p.pos=10; p.jail = true; updatePos(); addLog(`${p.name} BỊ GIẢI VÔ TÙ!`); finish(); }
+        else if(t.type==='jail' || t.type==='rest'){ addLog(`${p.name} nghỉ ngơi tại ${t.name}.`); finish(); }
+        else if(t.price > 0) {
+            if(!t.owner) askQuiz(t);
+            else if(t.owner === p.id) { if(t.buildings < 5) askUpgrade(t); else finish(); }
+            else { let tax=t.rent[t.buildings]; p.money-=tax; players[t.owner-1].money+=tax; addLog(`${p.name} nộp ${tax}💰 thuế môn bài.`); finish(); }
+        } else finish();
+    }
+
+    function doDig() {
+        const p = players[turn]; p.money -= 50; const rand = Math.random();
+        if(rand < 0.3) { p.money += 200; addLog(`${p.name} đào trúng hòm vàng! (+200💰)`); }
+        else if(rand < 0.5) { p.jailCards++; addLog(`${p.name} nhặt được Lệnh Bài Miễn Tội!`); }
+        else addLog(`${p.name} đào trúng đá cuội, mất trắng 50💰.`);
+        finish();
+    }
+
+    function askQuiz(t) { let a = [...t.a].sort(()=>Math.random()-0.5); showModal("<h2 class='royal-font' style='color:#b31217'>THỬ THÁCH DI SẢN</h2>", `<h3 style='margin-bottom:15px; font-weight:700;'>${t.q}</h3>${a.map(o=>`<button class="ans-btn" onclick="closeModal(); checkAns('${o}')">${o}</button>`).join('')}`); }
+    
+    function checkAns(v) {
+        const t = boardData[players[turn].pos];
+        if(v === t.c) showModal("<h2 class='royal-font'>QUYỀN SỞ HỮU</h2>", generateDeed(t) + `<p style="font-weight:bold;margin-bottom:10px;">Chi ${t.price}💰 mua mảnh đất này?</p><button class="ans-btn" onclick="closeModal(); buyProp()">MUA NGAY</button><button class="ans-btn" style="background:#e67e22;" onclick="closeModal(); askAuctionOne()">BỎ QUA & ĐẤU GIÁ</button>`);
+        else { addLog(`${players[turn].name} trả lời sai, tuột mất cơ hội.`); finish(); }
+    }
+
+    function buyProp() { const p=players[turn], t=boardData[p.pos]; if(p.money >= t.price){ p.money-=t.price; t.owner=p.id; document.getElementById(`sq-${p.pos}`).style.background="#eef"; addLog(`${p.name} chính thức làm chủ ${t.name}.`); } else { addLog(`${p.name} không đủ ngân lượng.`); } finish(); }
+    
+    function askAuctionOne() { const nextIdx = (turn + 1) % 4; const p = players[nextIdx]; showModal("<h2 class='royal-font'>ĐẤU GIÁ?</h2>", `<p>${p.icon} <b>${p.name}</b> ơi, bạn có muốn mở phiên đấu giá cho cả làng không?</p><button class="ans-btn" style="background:#2ecc71;" onclick="closeModal(); initAuction()">CÓ, MỞ SÀN</button><button class="ans-btn" style="background:#718093;" onclick="closeModal(); finish()">KHÔNG, BỎ QUA</button>`); }
+    function initAuction() { auctionData = { active: true, prop: boardData[players[turn].pos], price: 10, bidder: null, turnIdx: 0 }; updateAuctionUI(); }
+    
+    function updateAuctionUI() {
+        const p = players[auctionData.turnIdx];
+        showModal("<h2 class='royal-font'>SÀN ĐẤU GIÁ</h2>", `<div class="title-deed"><div class="deed-header" style="background:var(--color-${auctionData.prop.type})">${auctionData.prop.name}</div><p style="font-size:26px; color:#b31217; font-weight:900; text-align:center; font-family: 'Cinzel', serif;">GIÁ: ${auctionData.price}💰</p></div><hr style="margin:10px 0;"><p>Tới lượt: ${p.icon} <b>${p.name}</b></p><button class="ans-btn" onclick="bidUp()">NÂNG GIÁ (+20💰)</button><button class="ans-btn" style="background:#e67e22;" onclick="passBid()">BỎ CUỘC</button>`);
+    }
+    
+    window.bidUp = function() {
+        const p = players[auctionData.turnIdx]; if(p.money < auctionData.price + 20) { alert("Không đủ ngân lượng!"); return; }
+        auctionData.price += 20; auctionData.bidder = p; auctionData.turnIdx = (auctionData.turnIdx + 1) % 4; updateAuctionUI();
+    }
+    window.passBid = function() { auctionData.turnIdx = (auctionData.turnIdx + 1) % 4; if(auctionData.bidder && players[auctionData.turnIdx].id === auctionData.bidder.id) { const w = auctionData.bidder; w.money -= auctionData.price; auctionData.prop.owner = w.id; document.getElementById(`sq-${boardData.indexOf(auctionData.prop)}`).style.background="#eef"; addLog(`${w.name} thắng thầu ${auctionData.prop.name}.`); closeModal(); finish(); } else if(!auctionData.bidder && auctionData.turnIdx === turn) { addLog(`Sàn đấu giá ${auctionData.prop.name} kết thúc mà không ai mua.`); closeModal(); finish(); } else updateAuctionUI(); }
+
+    function askUpgrade(t) { showModal("<h2 class='royal-font'>KIẾN THIẾT</h2>", generateDeed(t) + `<p style="font-weight:bold;">Đầu tư ${t.up}💰 để xây dựng kiến trúc?</p><button class="ans-btn" onclick="closeModal(); doUpgrade()">XÂY DỰNG</button><button class="ans-btn" style="background:#718093;" onclick="closeModal(); finish()">THÔI</button>`); }
+    function doUpgrade() { const p=players[turn], t=boardData[p.pos]; if(p.money>=t.up){ p.money-=t.up; t.buildings++; document.getElementById(`h-${p.pos}`).innerText=buildIcons[t.buildings]; addLog(`${p.name} tiến hành kiến thiết ${t.name}.`); } finish(); }
+    
+    function finish() { 
+        if(rolledDouble) {
+            addLog(`${players[turn].name} được đi tiếp nhờ đổ đôi!`);
+        } else {
+            turn = (turn + 1) % 4; 
+        }
+        const p = players[turn]; 
+        document.getElementById('turn-info').innerText = `LƯỢT: ${p.name.toUpperCase()}`; 
+        document.getElementById('turn-info').style.borderLeftColor = p.color; 
+        document.getElementById('roll-btn').disabled = false; 
+        updatePos(); 
+    }
+
+    function updatePos() {
+        players.forEach(p => {
+            const sq = document.getElementById(`sq-${p.pos}`);
+            const cx = sq.offsetLeft + (sq.offsetWidth / 2), cy = sq.offsetTop + (sq.offsetHeight / 2);
+            const d = 16; let ox = (p.id===1||p.id===3)?-d:d, oy = (p.id===1||p.id===2)?-d:d;
+            p.el.style.left = cx + ox + "px"; p.el.style.top = cy + oy + "px";
+            document.getElementById(`m${p.id}`).innerText = p.money;
+        });
+    }
+
+    function showModal(t,c){ document.getElementById('modal-content').innerHTML=`${t}${c}`; document.getElementById('modal-overlay').style.display='flex'; }
+    function closeModal(){ document.getElementById('modal-overlay').style.display='none'; }
+</script>
+</body>
+</html>
